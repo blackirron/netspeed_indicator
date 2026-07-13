@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>netspeed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0B1220;
+    --panel: #131B2E;
+    --panel-border: #212C45;
+    --teal: #4FD1C5;
+    --amber: #F5A623;
+    --red: #EF5350;
+    --text: #E6EDF3;
+    --muted: #6B7A90;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .widget {
+    width: 100%;
+    max-width: 440px;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    padding: 22px 24px 20px;
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+  .header .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+  .status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--muted);
+    transition: background 0.4s ease;
+  }
+  .dot.good { background: var(--teal); box-shadow: 0 0 8px var(--teal); }
+  .dot.mid { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+  .dot.bad { background: var(--red); box-shadow: 0 0 8px var(--red); }
+
+  .readout {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .readout .arrow { color: var(--teal); font-size: 20px; }
+  .readout .value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 46px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .readout .unit {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .readout-label {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    margin-bottom: 14px;
+  }
+
+  canvas#trace {
+    width: 100%;
+    height: 64px;
+    display: block;
+    margin: 10px 0 18px;
+  }
+
+  .secondary-row {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 14px;
+    border-top: 1px solid var(--panel-border);
+    margin-bottom: 16px;
+  }
+  .stat .stat-label {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    margin-bottom: 3px;
+  }
+  .stat .stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 17px;
+    font-weight: 500;
+  }
+
+  .controls {
+    display: flex;
+    gap: 10px;
+  }
+  button {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 9px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--panel-border);
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  button:hover { border-color: var(--teal); }
+  button:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+  button.primary {
+    background: var(--teal);
+    color: #08161A;
+    border-color: var(--teal);
+    font-weight: 600;
+  }
+  button.primary:hover { background: #6be0d5; }
+  button.toggle.on { color: var(--teal); border-color: var(--teal); }
+
+  .conn-info {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--muted);
+    margin-top: 14px;
+    letter-spacing: 0.02em;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dot { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="widget">
+  <div class="header">
+    <span class="label">NETSPEED</span>
+    <div class="status">
+      <span class="dot" id="statusDot"></span>
+      <span id="statusText">idle</span>
+    </div>
+  </div>
+
+  <div class="readout">
+    <span class="arrow">&#8595;</span>
+    <span class="value" id="downValue">&mdash;</span>
+    <span class="unit">Mbps down</span>
+  </div>
+  <div class="readout-label">live download throughput</div>
+
+  <canvas id="trace" width="880" height="128"></canvas>
+
+  <div class="secondary-row">
+    <div class="stat">
+      <div class="stat-label">UPLOAD</div>
+      <div class="stat-value" id="upValue">&mdash;</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">LAST TEST</div>
+      <div class="stat-value" id="lastTest">&mdash;</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">SAMPLES</div>
+      <div class="stat-value" id="sampleCount">0</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="primary" id="runBtn">Run test</button>
+    <button class="toggle" id="autoBtn">Auto: off</button>
+  </div>
+
+  <div class="conn-info" id="connInfo">connection: detecting&hellip;</div>
+</div>
+
+<script>
+  const downValue = document.getElementById('downValue');
+  const upValue = document.getElementById('upValue');
+  const lastTest = document.getElementById('lastTest');
+  const sampleCount = document.getElementById('sampleCount');
+  const statusDot = document.getElementById('statusDot');
+  const statusText = document.getElementById('statusText');
+  const runBtn = document.getElementById('runBtn');
+  const autoBtn = document.getElementById('autoBtn');
+  const connInfo = document.getElementById('connInfo');
+  const canvas = document.getElementById('trace');
+  const ctx = canvas.getContext('2d');
+
+  const history = [];
+  const MAX_POINTS = 40;
+  let autoOn = false;
+  let autoTimer = null;
+  let samples = 0;
+
+  function setStatus(state, text) {
+    statusDot.className = 'dot' + (state ? ' ' + state : '');
+    statusText.textContent = text;
+  }
+
+  function classifySpeed(mbps) {
+    if (mbps >= 25) return 'good';
+    if (mbps >= 5) return 'mid';
+    return 'bad';
+  }
+
+  function drawTrace() {
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+    if (history.length < 2) return;
+
+    const max = Math.max(...history, 10);
+    const stepX = w / (MAX_POINTS - 1);
+    const startIdx = MAX_POINTS - history.length;
+
+    ctx.beginPath();
+    ctx.strokeStyle = '#4FD1C5';
+    ctx.lineWidth = 2;
+    history.forEach((v, i) => {
+      const x = (startIdx + i) * stepX;
+      const y = h - (v / max) * (h - 10) - 4;
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    // faint fill under the trace
+    ctx.lineTo((startIdx + history.length - 1) * stepX, h);
+    ctx.lineTo(startIdx * stepX, h);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(79, 209, 197, 0.08)';
+    ctx.fill();
+  }
+
+  async function measureDownload(sizeMb = 4) {
+    const start = performance.now();
+    const res = await fetch(`/speedtest/download?size_mb=${sizeMb}`);
+    const reader = res.body.getReader();
+    let received = 0;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      received += value.length;
+    }
+    const seconds = (performance.now() - start) / 1000;
+    return (received * 8) / seconds / 1_000_000; // Mbps
+  }
+
+  async function measureUpload(sizeMb = 1.5) {
+    const bytes = new Uint8Array(sizeMb * 1024 * 1024);
+    crypto.getRandomValues(bytes.subarray(0, Math.min(bytes.length, 65536))); // seed a chunk, rest zeros is fine for timing
+    const start = performance.now();
+    await fetch('/speedtest/upload', { method: 'POST', body: bytes });
+    const seconds = (performance.now() - start) / 1000;
+    return (bytes.length * 8) / seconds / 1_000_000; // Mbps
+  }
+
+  async function runTest() {
+    runBtn.disabled = true;
+    setStatus('', 'testing…');
+    try {
+      const down = await measureDownload();
+      downValue.textContent = down.toFixed(1);
+      const state = classifySpeed(down);
+      setStatus(state, state === 'good' ? 'fast' : state === 'mid' ? 'moderate' : 'slow');
+
+      history.push(down);
+      if (history.length > MAX_POINTS) history.shift();
+      drawTrace();
+
+      const up = await measureUpload();
+      upValue.textContent = up.toFixed(1);
+
+      samples += 1;
+      sampleCount.textContent = samples;
+      lastTest.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    } catch (err) {
+      setStatus('bad', 'error');
+      console.error(err);
+    } finally {
+      runBtn.disabled = false;
+    }
+  }
+
+  runBtn.addEventListener('click', runTest);
+
+  autoBtn.addEventListener('click', () => {
+    autoOn = !autoOn;
+    autoBtn.textContent = 'Auto: ' + (autoOn ? 'on' : 'off');
+    autoBtn.classList.toggle('on', autoOn);
+    if (autoOn) {
+      runTest();
+      autoTimer = setInterval(runTest, 10000);
+    } else {
+      clearInterval(autoTimer);
+    }
+  });
+
+  // Passive connection info (instant, no network call)
+  if (navigator.connection) {
+    const c = navigator.connection;
+    connInfo.textContent = `connection: ${c.effectiveType || 'unknown'} · reported downlink ~${c.downlink ?? '?'} Mbps`;
+  } else {
+    connInfo.textContent = 'connection: type detection not supported in this browser';
+  }
+
+  drawTrace();
+</script>
+
+</body>
+</html>
