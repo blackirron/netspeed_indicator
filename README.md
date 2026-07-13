@@ -1,4 +1,4 @@
-# Netspeed Indicator
+# Netspeed Indicator 🚨
 
 Forked from the sprint's base FastAPI template.
 
