@@ -3,160 +3,230 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>netspeed</title>
+<title>Network Speed Test</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0B1220;
-    --panel: #131B2E;
-    --panel-border: #212C45;
-    --teal: #4FD1C5;
-    --amber: #F5A623;
-    --red: #EF5350;
-    --text: #E6EDF3;
-    --muted: #6B7A90;
+    --bg-app: #F8FAFC;
+    --bg-panel: #FFFFFF;
+    --border-soft: #F1F5F9;
+    --border-hard: #E2E8F0;
+    
+    --primary: #3B82F6;
+    --primary-hover: #2563EB;
+    --primary-bg: #EFF6FF;
+    
+    --success: #10B981;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+    
+    --text-main: #0F172A;
+    --text-secondary: #475569;
+    --text-muted: #94A3B8;
   }
+  
   * { box-sizing: border-box; }
+  
   body {
     margin: 0;
     min-height: 100vh;
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Inter', sans-serif;
+    background: var(--bg-app);
+    color: var(--text-main);
+    font-family: 'Inter', -apple-system, sans-serif;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 24px;
+    -webkit-font-smoothing: antialiased;
   }
+  
   .widget {
     width: 100%;
-    max-width: 440px;
-    background: var(--panel);
-    border: 1px solid var(--panel-border);
-    border-radius: 10px;
-    padding: 22px 24px 20px;
+    max-width: 420px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-soft);
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 
+      0 4px 6px -1px rgba(0, 0, 0, 0.05),
+      0 10px 15px -3px rgba(0, 0, 0, 0.02),
+      0 20px 25px -5px rgba(0, 0, 0, 0.01);
   }
+  
   .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 18px;
+    margin-bottom: 24px;
   }
+  
   .header .label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 0.12em;
-    color: var(--muted);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text-main);
   }
+  
   .status {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    color: var(--muted);
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: #F8FAFC;
+    padding: 4px 10px;
+    border-radius: 99px;
+    border: 1px solid var(--border-hard);
   }
+  
   .dot {
-    width: 7px;
-    height: 7px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
-    background: var(--muted);
-    transition: background 0.4s ease;
+    background: var(--text-muted);
+    transition: background 0.4s ease, box-shadow 0.4s ease;
   }
-  .dot.good { background: var(--teal); box-shadow: 0 0 8px var(--teal); }
-  .dot.mid { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
-  .dot.bad { background: var(--red); box-shadow: 0 0 8px var(--red); }
+  .dot.good { background: var(--success); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15); }
+  .dot.mid { background: var(--warning); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15); }
+  .dot.bad { background: var(--danger); box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15); }
 
   .readout {
     display: flex;
     align-items: baseline;
     gap: 8px;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
   }
-  .readout .arrow { color: var(--teal); font-size: 20px; }
+  
+  .readout .arrow { 
+    color: var(--primary); 
+    font-size: 20px; 
+    font-weight: 600;
+  }
+  
   .readout .value {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 46px;
+    font-size: 56px;
     font-weight: 700;
+    letter-spacing: -0.03em;
     line-height: 1;
+    color: var(--text-main);
+    font-variant-numeric: tabular-nums;
   }
+  
   .readout .unit {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    color: var(--muted);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
   }
+  
   .readout-label {
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 0.04em;
-    margin-bottom: 14px;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
   }
 
   canvas#trace {
     width: 100%;
-    height: 64px;
+    height: 72px;
     display: block;
-    margin: 10px 0 18px;
+    margin: 16px 0 24px;
+    border-radius: 8px;
   }
 
   .secondary-row {
     display: flex;
     justify-content: space-between;
-    padding-top: 14px;
-    border-top: 1px solid var(--panel-border);
-    margin-bottom: 16px;
+    padding: 20px 0;
+    border-top: 1px solid var(--border-hard);
+    border-bottom: 1px solid var(--border-hard);
+    margin-bottom: 24px;
   }
-  .stat .stat-label {
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 0.06em;
-    margin-bottom: 3px;
+  
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
   }
-  .stat .stat-value {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 17px;
-    font-weight: 500;
+  
+  .stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  .stat-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-main);
+    font-variant-numeric: tabular-nums;
   }
 
   .controls {
     display: flex;
-    gap: 10px;
+    gap: 12px;
   }
+  
   button {
     font-family: 'Inter', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    padding: 9px 14px;
-    border-radius: 6px;
-    border: 1px solid var(--panel-border);
-    background: transparent;
-    color: var(--text);
-    cursor: pointer;
-    transition: border-color 0.2s ease, background 0.2s ease;
-  }
-  button:hover { border-color: var(--teal); }
-  button:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
-  button.primary {
-    background: var(--teal);
-    color: #08161A;
-    border-color: var(--teal);
+    font-size: 14px;
     font-weight: 600;
+    padding: 12px 20px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
-  button.primary:hover { background: #6be0d5; }
-  button.toggle.on { color: var(--teal); border-color: var(--teal); }
+  
+  button.primary {
+    background: var(--primary);
+    color: #FFFFFF;
+    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.2);
+  }
+  
+  button.primary:hover:not(:disabled) { 
+    background: var(--primary-hover); 
+    transform: translateY(-1px);
+  }
+  
+  button.primary:disabled {
+    background: var(--text-muted);
+    box-shadow: none;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+  
+  button.toggle {
+    background: var(--bg-app);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-hard);
+  }
+  
+  button.toggle:hover {
+    background: var(--border-soft);
+  }
+  
+  button.toggle.on { 
+    color: var(--primary); 
+    background: var(--primary-bg);
+    border-color: rgba(59, 130, 246, 0.3);
+  }
 
   .conn-info {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10.5px;
-    color: var(--muted);
-    margin-top: 14px;
-    letter-spacing: 0.02em;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 20px;
+    text-align: center;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .dot { transition: none; }
+    .dot, button.primary { transition: none; transform: none; }
   }
 </style>
 </head>
@@ -164,46 +234,47 @@
 
 <div class="widget">
   <div class="header">
-    <span class="label">NETSPEED</span>
+    <span class="label">Connection Status</span>
     <div class="status">
       <span class="dot" id="statusDot"></span>
-      <span id="statusText">idle</span>
+      <span id="statusText">Ready</span>
     </div>
   </div>
 
   <div class="readout">
     <span class="arrow">&#8595;</span>
     <span class="value" id="downValue">&mdash;</span>
-    <span class="unit">Mbps down</span>
+    <span class="unit">Mbps</span>
   </div>
-  <div class="readout-label">live download throughput</div>
+  <div class="readout-label">Download Speed</div>
 
-  <canvas id="trace" width="880" height="128"></canvas>
+  <canvas id="trace" width="880" height="144"></canvas>
 
   <div class="secondary-row">
     <div class="stat">
-      <div class="stat-label">UPLOAD</div>
+      <div class="stat-label">Upload</div>
       <div class="stat-value" id="upValue">&mdash;</div>
     </div>
     <div class="stat">
-      <div class="stat-label">LAST TEST</div>
+      <div class="stat-label">Last Test</div>
       <div class="stat-value" id="lastTest">&mdash;</div>
     </div>
     <div class="stat">
-      <div class="stat-label">SAMPLES</div>
+      <div class="stat-label">Tests Run</div>
       <div class="stat-value" id="sampleCount">0</div>
     </div>
   </div>
 
   <div class="controls">
-    <button class="primary" id="runBtn">Run test</button>
-    <button class="toggle" id="autoBtn">Auto: off</button>
+    <button class="primary" id="runBtn">Run Test</button>
+    <button class="toggle" id="autoBtn">Auto: Off</button>
   </div>
 
-  <div class="conn-info" id="connInfo">connection: detecting&hellip;</div>
+  <div class="conn-info" id="connInfo">Detecting network profile&hellip;</div>
 </div>
 
 <script>
+  // Elements
   const downValue = document.getElementById('downValue');
   const upValue = document.getElementById('upValue');
   const lastTest = document.getElementById('lastTest');
@@ -216,6 +287,7 @@
   const canvas = document.getElementById('trace');
   const ctx = canvas.getContext('2d');
 
+  // State
   const history = [];
   const MAX_POINTS = 40;
   let autoOn = false;
@@ -243,20 +315,27 @@
     const startIdx = MAX_POINTS - history.length;
 
     ctx.beginPath();
-    ctx.strokeStyle = '#4FD1C5';
-    ctx.lineWidth = 2;
+    // UI update: Switched from neon teal to primary blue for light mode
+    ctx.strokeStyle = '#3B82F6';
+    ctx.lineWidth = 4; // Slightly thicker line for better visibility on light background
+    
     history.forEach((v, i) => {
       const x = (startIdx + i) * stepX;
-      const y = h - (v / max) * (h - 10) - 4;
+      const y = h - (v / max) * (h - 10) - 6;
       i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
     });
+    
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
     ctx.stroke();
 
-    // faint fill under the trace
+    // Fill under the trace
     ctx.lineTo((startIdx + history.length - 1) * stepX, h);
     ctx.lineTo(startIdx * stepX, h);
     ctx.closePath();
-    ctx.fillStyle = 'rgba(79, 209, 197, 0.08)';
+    
+    // UI update: Softer blue gradient/fill for the area under the curve
+    ctx.fillStyle = 'rgba(59, 130, 246, 0.1)';
     ctx.fill();
   }
 
@@ -276,7 +355,7 @@
 
   async function measureUpload(sizeMb = 1.5) {
     const bytes = new Uint8Array(sizeMb * 1024 * 1024);
-    crypto.getRandomValues(bytes.subarray(0, Math.min(bytes.length, 65536))); // seed a chunk, rest zeros is fine for timing
+    crypto.getRandomValues(bytes.subarray(0, Math.min(bytes.length, 65536))); 
     const start = performance.now();
     await fetch('/speedtest/upload', { method: 'POST', body: bytes });
     const seconds = (performance.now() - start) / 1000;
@@ -285,28 +364,31 @@
 
   async function runTest() {
     runBtn.disabled = true;
-    setStatus('', 'testing…');
+    runBtn.textContent = 'Testing...';
+    setStatus('', 'Testing...');
+    
     try {
       const down = await measureDownload();
       downValue.textContent = down.toFixed(1);
       const state = classifySpeed(down);
-      setStatus(state, state === 'good' ? 'fast' : state === 'mid' ? 'moderate' : 'slow');
+      setStatus(state, state === 'good' ? 'Fast' : state === 'mid' ? 'Moderate' : 'Slow');
 
       history.push(down);
       if (history.length > MAX_POINTS) history.shift();
       drawTrace();
 
       const up = await measureUpload();
-      upValue.textContent = up.toFixed(1);
+      upValue.textContent = up.toFixed(1) + ' Mbps';
 
       samples += 1;
       sampleCount.textContent = samples;
-      lastTest.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      lastTest.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     } catch (err) {
-      setStatus('bad', 'error');
+      setStatus('bad', 'Error');
       console.error(err);
     } finally {
       runBtn.disabled = false;
+      runBtn.textContent = 'Run Test';
     }
   }
 
@@ -314,7 +396,7 @@
 
   autoBtn.addEventListener('click', () => {
     autoOn = !autoOn;
-    autoBtn.textContent = 'Auto: ' + (autoOn ? 'on' : 'off');
+    autoBtn.textContent = 'Auto: ' + (autoOn ? 'On' : 'Off');
     autoBtn.classList.toggle('on', autoOn);
     if (autoOn) {
       runTest();
@@ -324,14 +406,16 @@
     }
   });
 
-  // Passive connection info (instant, no network call)
+  // Passive connection info
   if (navigator.connection) {
     const c = navigator.connection;
-    connInfo.textContent = `connection: ${c.effectiveType || 'unknown'} · reported downlink ~${c.downlink ?? '?'} Mbps`;
+    const type = c.effectiveType ? c.effectiveType.toUpperCase() : 'UNKNOWN';
+    connInfo.textContent = `Network: ${type} • Approx downlink: ${c.downlink ?? '?'} Mbps`;
   } else {
-    connInfo.textContent = 'connection: type detection not supported in this browser';
+    connInfo.textContent = 'Network detection not supported in this browser';
   }
 
+  // Initial trace setup
   drawTrace();
 </script>
 
