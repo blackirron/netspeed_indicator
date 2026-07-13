@@ -77,6 +77,10 @@ Environment variables to set on the platform dashboard:
 - `ALLOWED_ORIGINS` (https://netspeed-indicator.onrender.com/)
 
 ## Future Scope
+
 - Download for linux and windows 
 - A small bullet showing live dataspeed on the topbar or bottombar of the computer, data usage too when clicked
 - Sophesticatedly showing the netspeed and data usage for individual apps
+
+<img width="400" height="auto" alt="image" src="https://github.com/user-attachments/assets/353d481c-09c9-444a-9904-29910cf1fd64" />
+<img width="400" height="auto" alt="image" src="https://github.com/user-attachments/assets/138ed48e-ce36-4bc7-9c76-80546232d0ed" />
