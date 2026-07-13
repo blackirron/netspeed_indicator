@@ -14,7 +14,7 @@ time you hit "Run test" (or leave "Auto" on for a reading every 10s).
 **Why it exists:** A quick, always-open tab that tells you if your current
 connection is actually the bottleneck before you blame your app/router/wifi.
 
-**Live demo:** [link once deployed]
+**Live demo:** https://netspeed-indicator.onrender.com/
 
 **Note:** this app does NOT use the Claude API — `ANTHROPIC_API_KEY` in
 `.env` can be left blank.
@@ -68,10 +68,15 @@ app/
 
 ## Deployment
 
-Deployed on: [Railway / Render / Fly.io — fill in]
+Deployed on: Render
 
 Environment variables to set on the platform dashboard:
-- `ANTHROPIC_API_KEY`
+- `GROQ_API_KEY`
 - `API_AUTH_TOKEN`
 - `ENVIRONMENT=production`
-- `ALLOWED_ORIGINS` (your frontend's real URL)
+- `ALLOWED_ORIGINS` (https://netspeed-indicator.onrender.com/)
+
+## Future Scope
+- Download for linux and windows 
+- A small bullet showing live dataspeed on the topbar or bottombar of the computer, data usage too when clicked
+- Sophesticatedly showing the netspeed and data usage for individual apps
