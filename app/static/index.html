@@ -12,22 +12,54 @@
     --bg-panel: #FFFFFF;
     --border-soft: #F1F5F9;
     --border-hard: #E2E8F0;
-    
+
     --primary: #3B82F6;
     --primary-hover: #2563EB;
     --primary-bg: #EFF6FF;
-    
+    --primary-rgb: 59, 130, 246;
+
     --success: #10B981;
     --warning: #F59E0B;
     --danger: #EF4444;
-    
+
     --text-main: #0F172A;
     --text-secondary: #475569;
     --text-muted: #94A3B8;
+
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
+              0 10px 15px -3px rgba(0, 0, 0, 0.02),
+              0 20px 25px -5px rgba(0, 0, 0, 0.01);
   }
-  
+
+  [data-theme="dark"] {
+    --bg-app: #0B1120;
+    --bg-panel: #131B2C;
+    --border-soft: #1B2537;
+    --border-hard: #26324A;
+
+    --primary: #2DD4BF;
+    --primary-hover: #14B8A6;
+    --primary-bg: rgba(45, 212, 191, 0.12);
+    --primary-rgb: 45, 212, 191;
+
+    --success: #34D399;
+    --warning: #FBBF24;
+    --danger: #F87171;
+
+    --text-main: #F1F5F9;
+    --text-secondary: #94A3B8;
+    --text-muted: #5B6B85;
+
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.25),
+              0 10px 15px -3px rgba(0, 0, 0, 0.2),
+              0 20px 25px -5px rgba(0, 0, 0, 0.15);
+  }
+
   * { box-sizing: border-box; }
-  
+
+  html { color-scheme: light; }
+  html[data-theme="dark"] { color-scheme: dark; }
+
   body {
     margin: 0;
     min-height: 100vh;
@@ -39,8 +71,9 @@
     justify-content: center;
     padding: 24px;
     -webkit-font-smoothing: antialiased;
+    transition: background 0.3s ease, color 0.3s ease;
   }
-  
+
   .widget {
     width: 100%;
     max-width: 420px;
@@ -48,26 +81,32 @@
     border: 1px solid var(--border-soft);
     border-radius: 20px;
     padding: 28px;
-    box-shadow: 
-      0 4px 6px -1px rgba(0, 0, 0, 0.05),
-      0 10px 15px -3px rgba(0, 0, 0, 0.02),
-      0 20px 25px -5px rgba(0, 0, 0, 0.01);
+    box-shadow: var(--shadow);
+    transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
   }
-  
+
   .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 24px;
+    gap: 10px;
   }
-  
+
   .header .label {
     font-size: 14px;
     font-weight: 600;
     letter-spacing: -0.01em;
     color: var(--text-main);
+    white-space: nowrap;
   }
-  
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
   .status {
     display: flex;
     align-items: center;
@@ -75,12 +114,13 @@
     font-size: 12px;
     font-weight: 500;
     color: var(--text-secondary);
-    background: #F8FAFC;
+    background: var(--bg-app);
     padding: 4px 10px;
     border-radius: 99px;
     border: 1px solid var(--border-hard);
+    transition: background 0.3s ease, border-color 0.3s ease;
   }
-  
+
   .dot {
     width: 8px;
     height: 8px;
@@ -92,19 +132,46 @@
   .dot.mid { background: var(--warning); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15); }
   .dot.bad { background: var(--danger); box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15); }
 
+  /* Theme toggle button */
+  .theme-toggle {
+    flex: none;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border-radius: 50%;
+    background: var(--bg-app);
+    border: 1px solid var(--border-hard);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+  }
+  .theme-toggle:hover {
+    color: var(--primary);
+    border-color: rgba(var(--primary-rgb), 0.4);
+    transform: translateY(-1px);
+  }
+  .theme-toggle svg {
+    width: 15px;
+    height: 15px;
+    display: block;
+  }
+
   .readout {
     display: flex;
     align-items: baseline;
     gap: 8px;
     margin-bottom: 2px;
   }
-  
-  .readout .arrow { 
-    color: var(--primary); 
-    font-size: 20px; 
+
+  .readout .arrow {
+    color: var(--primary);
+    font-size: 20px;
     font-weight: 600;
   }
-  
+
   .readout .value {
     font-size: 56px;
     font-weight: 700;
@@ -113,13 +180,13 @@
     color: var(--text-main);
     font-variant-numeric: tabular-nums;
   }
-  
+
   .readout .unit {
     font-size: 14px;
     font-weight: 500;
     color: var(--text-secondary);
   }
-  
+
   .readout-label {
     font-size: 13px;
     color: var(--text-muted);
@@ -141,14 +208,15 @@
     border-top: 1px solid var(--border-hard);
     border-bottom: 1px solid var(--border-hard);
     margin-bottom: 24px;
+    transition: border-color 0.3s ease;
   }
-  
+
   .stat {
     display: flex;
     flex-direction: column;
     gap: 4px;
   }
-  
+
   .stat-label {
     font-size: 11px;
     font-weight: 600;
@@ -156,7 +224,7 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
-  
+
   .stat-value {
     font-size: 16px;
     font-weight: 600;
@@ -168,7 +236,7 @@
     display: flex;
     gap: 12px;
   }
-  
+
   button {
     font-family: 'Inter', sans-serif;
     font-size: 14px;
@@ -183,39 +251,39 @@
     justify-content: center;
     align-items: center;
   }
-  
+
   button.primary {
     background: var(--primary);
     color: #FFFFFF;
-    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.2);
+    box-shadow: 0 4px 10px rgba(var(--primary-rgb), 0.25);
   }
-  
-  button.primary:hover:not(:disabled) { 
-    background: var(--primary-hover); 
+
+  button.primary:hover:not(:disabled) {
+    background: var(--primary-hover);
     transform: translateY(-1px);
   }
-  
+
   button.primary:disabled {
     background: var(--text-muted);
     box-shadow: none;
     cursor: not-allowed;
     opacity: 0.7;
   }
-  
+
   button.toggle {
     background: var(--bg-app);
     color: var(--text-secondary);
     border: 1px solid var(--border-hard);
   }
-  
+
   button.toggle:hover {
     background: var(--border-soft);
   }
-  
-  button.toggle.on { 
-    color: var(--primary); 
+
+  button.toggle.on {
+    color: var(--primary);
     background: var(--primary-bg);
-    border-color: rgba(59, 130, 246, 0.3);
+    border-color: rgba(var(--primary-rgb), 0.3);
   }
 
   .conn-info {
@@ -226,7 +294,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .dot, button.primary { transition: none; transform: none; }
+    .dot, button.primary, body, .widget { transition: none; transform: none; }
   }
 </style>
 </head>
@@ -235,9 +303,14 @@
 <div class="widget">
   <div class="header">
     <span class="label">Connection Status</span>
-    <div class="status">
-      <span class="dot" id="statusDot"></span>
-      <span id="statusText">Ready</span>
+    <div class="header-right">
+      <div class="status">
+        <span class="dot" id="statusDot"></span>
+        <span id="statusText">Ready</span>
+      </div>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+      </button>
     </div>
   </div>
 
@@ -274,7 +347,36 @@
 </div>
 
 <script>
-  // Elements
+  // ---------- Theme handling ----------
+  const SUN_PATH = '<circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>';
+  const MOON_PATH = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"></path>';
+
+  const root = document.documentElement;
+  const themeToggle = document.getElementById('themeToggle');
+  const themeIcon = document.getElementById('themeIcon');
+
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    themeIcon.innerHTML = theme === 'dark' ? SUN_PATH : MOON_PATH; // icon shows what you'd switch TO
+    themeToggle.title = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+    localStorage.setItem('netspeed-theme', theme);
+    drawTrace(); // recolor the graph line for the new theme
+  }
+
+  function getInitialTheme() {
+    const saved = localStorage.getItem('netspeed-theme');
+    if (saved === 'light' || saved === 'dark') return saved;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
+  applyTheme(getInitialTheme());
+
+  themeToggle.addEventListener('click', () => {
+    const current = root.getAttribute('data-theme');
+    applyTheme(current === 'dark' ? 'light' : 'dark');
+  });
+
+  // ---------- Elements ----------
   const downValue = document.getElementById('downValue');
   const upValue = document.getElementById('upValue');
   const lastTest = document.getElementById('lastTest');
@@ -310,32 +412,33 @@
     ctx.clearRect(0, 0, w, h);
     if (history.length < 2) return;
 
+    const isDark = root.getAttribute('data-theme') === 'dark';
+    const strokeColor = isDark ? '#2DD4BF' : '#3B82F6';
+    const fillColor = isDark ? 'rgba(45, 212, 191, 0.12)' : 'rgba(59, 130, 246, 0.1)';
+
     const max = Math.max(...history, 10);
     const stepX = w / (MAX_POINTS - 1);
     const startIdx = MAX_POINTS - history.length;
 
     ctx.beginPath();
-    // UI update: Switched from neon teal to primary blue for light mode
-    ctx.strokeStyle = '#3B82F6';
-    ctx.lineWidth = 4; // Slightly thicker line for better visibility on light background
-    
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = 4;
+
     history.forEach((v, i) => {
       const x = (startIdx + i) * stepX;
       const y = h - (v / max) * (h - 10) - 6;
       i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
     });
-    
+
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.stroke();
 
-    // Fill under the trace
     ctx.lineTo((startIdx + history.length - 1) * stepX, h);
     ctx.lineTo(startIdx * stepX, h);
     ctx.closePath();
-    
-    // UI update: Softer blue gradient/fill for the area under the curve
-    ctx.fillStyle = 'rgba(59, 130, 246, 0.1)';
+
+    ctx.fillStyle = fillColor;
     ctx.fill();
   }
 
@@ -355,7 +458,7 @@
 
   async function measureUpload(sizeMb = 1.5) {
     const bytes = new Uint8Array(sizeMb * 1024 * 1024);
-    crypto.getRandomValues(bytes.subarray(0, Math.min(bytes.length, 65536))); 
+    crypto.getRandomValues(bytes.subarray(0, Math.min(bytes.length, 65536)));
     const start = performance.now();
     await fetch('/speedtest/upload', { method: 'POST', body: bytes });
     const seconds = (performance.now() - start) / 1000;
@@ -366,7 +469,7 @@
     runBtn.disabled = true;
     runBtn.textContent = 'Testing...';
     setStatus('', 'Testing...');
-    
+
     try {
       const down = await measureDownload();
       downValue.textContent = down.toFixed(1);
